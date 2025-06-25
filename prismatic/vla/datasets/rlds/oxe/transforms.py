@@ -28,6 +28,26 @@ from prismatic.vla.datasets.rlds.utils.data_utils import (
 )
 
 
+def allex_cube_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+    # print all the keys in the trajectory
+    print(trajectory.keys())
+    print(trajectory["observation"].keys())
+    # print(trajectory["action"].keys())
+    # print(trajectory["language_instruction"].keys())
+
+    # Standardize image observations
+    trajectory["observation"]["observation.images.robot0_robotview"] = trajectory["observation"]["robot0_robotview"]
+    trajectory["observation"]["observation.images.sideview"] = trajectory["observation"]["sideview"]
+
+
+    # Standardize state, action, and language instruction
+    trajectory["observation"]["state"] = trajectory["observation"]["state"]
+    trajectory["action"] = trajectory["action"]
+    trajectory["language_instruction"] = trajectory["language_instruction"]
+
+    return trajectory
+
+
 def bridge_oxe_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
     """
     Applies to version of Bridge V2 in Open X-Embodiment mixture.
@@ -843,6 +863,7 @@ def libero_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
 
 # === Registry ===
 OXE_STANDARDIZATION_TRANSFORMS = {
+    "allex_cube": allex_cube_dataset_transform,
     "bridge_oxe": bridge_oxe_dataset_transform,
     "bridge_orig": bridge_orig_dataset_transform,
     "bridge_dataset": bridge_orig_dataset_transform,

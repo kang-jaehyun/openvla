@@ -91,7 +91,7 @@ class FinetuneConfig:
     grad_accumulation_steps: int = 1                                # Gradient accumulation steps
     image_aug: bool = True                                          # Whether to train with image augmentations
     shuffle_buffer_size: int = 100_000                              # Dataloader shuffle buffer size (can reduce if OOM)
-    save_latest_checkpoint_only: bool = True                        # Whether to save only one checkpoint per run and
+    save_latest_checkpoint_only: bool = False                        # Whether to save only one checkpoint per run and
                                                                     #   continually overwrite the latest checkpoint
                                                                     #   (If False, saves all checkpoints)
 
@@ -268,6 +268,9 @@ def finetune(cfg: FinetuneConfig) -> None:
 
             # Compute Accuracy and L1 Loss for Logging
             action_logits = output.logits[:, vla.module.vision_backbone.featurizer.patch_embed.num_patches : -1]
+
+            # print("shape of action_logits", action_logits.shape, flush=True)
+            # print("shape of gt", batch["labels"].shape, flush=True)
             action_preds = action_logits.argmax(dim=2)
             action_gt = batch["labels"][:, 1:].to(action_preds.device)
             mask = action_gt > action_tokenizer.action_token_begin_idx
@@ -283,6 +286,8 @@ def finetune(cfg: FinetuneConfig) -> None:
             continuous_actions_gt = torch.tensor(
                 action_tokenizer.decode_token_ids_to_actions(action_gt[mask].cpu().numpy())
             )
+            # print("shape of continuous_actions_pred", continuous_actions_pred.shape, flush=True)
+            # print("shape of continuous_actions_gt", continuous_actions_gt.shape, flush=True)
             action_l1_loss = torch.nn.functional.l1_loss(continuous_actions_pred, continuous_actions_gt)
 
             # Store recent train metrics

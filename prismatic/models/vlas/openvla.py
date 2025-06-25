@@ -90,6 +90,7 @@ class OpenVLA(PrismaticVLM):
         predicted_action_token_ids = generated_ids[0, -self.get_action_dim(unnorm_key) :]
         normalized_actions = self.action_tokenizer.decode_token_ids_to_actions(predicted_action_token_ids.cpu().numpy())
 
+        # print(normalized_actions)
         # Un-normalize Actions
         action_norm_stats = self.get_action_stats(unnorm_key)
         mask = action_norm_stats.get("mask", np.ones_like(action_norm_stats["q01"], dtype=bool))
@@ -99,6 +100,8 @@ class OpenVLA(PrismaticVLM):
             0.5 * (normalized_actions + 1) * (action_high - action_low) + action_low,
             normalized_actions,
         )
+        print(actions, flush=True)
+        print("shape of actions", actions.shape, flush=True)
 
         return actions
 
